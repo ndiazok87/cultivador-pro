@@ -31,12 +31,13 @@ export const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button size="lg" className="bg-background text-primary hover:bg-background/90 group">
-            Comenzar Ahora
+          <Button 
+            size="lg" 
+            className="bg-background text-primary hover:bg-background/90 group"
+            onClick={() => document.getElementById('dashboard')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Ver Panel de Control
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-          <Button size="lg" variant="outline" className="bg-background/10 backdrop-blur-sm text-primary-foreground border-primary-foreground/30 hover:bg-background/20">
-            Ver Demo
           </Button>
         </div>
 
