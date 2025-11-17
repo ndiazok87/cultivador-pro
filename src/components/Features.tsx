@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Satellite, BarChart3, Bell, Smartphone, Database, Cloud } from "lucide-react";
+import { Satellite, BarChart3, Plane, Radio, Users, UserCog } from "lucide-react";
 
 const features = [
   {
@@ -8,29 +8,29 @@ const features = [
     description: "Imágenes satelitales de alta resolución para análisis detallado de cultivos y detección temprana de problemas.",
   },
   {
+    icon: Plane,
+    title: "Drones Agrícolas",
+    description: "Tecnología de drones para mapeo aéreo, fumigación de precisión y monitoreo visual de cultivos.",
+  },
+  {
+    icon: Radio,
+    title: "Sensores IoT",
+    description: "Red de sensores a campo para medición en tiempo real de humedad, temperatura y nutrientes del suelo.",
+  },
+  {
     icon: BarChart3,
     title: "Análisis Predictivo",
     description: "Algoritmos de IA que predicen rendimientos, detectan enfermedades y optimizan el uso de recursos.",
   },
   {
-    icon: Bell,
-    title: "Alertas Inteligentes",
-    description: "Notificaciones en tiempo real sobre condiciones climáticas, plagas y necesidades de riego.",
+    icon: Users,
+    title: "Gestión de Equipos",
+    description: "Administra tu equipo de trabajo, asigna tareas y monitorea la actividad de empleados en el campo.",
   },
   {
-    icon: Smartphone,
-    title: "App Móvil",
-    description: "Accede a todos tus datos desde el campo con nuestra aplicación móvil intuitiva.",
-  },
-  {
-    icon: Database,
-    title: "Gestión de Datos",
-    description: "Almacenamiento seguro y análisis histórico de todos los datos de tus campos.",
-  },
-  {
-    icon: Cloud,
-    title: "Sincronización Cloud",
-    description: "Todos tus datos sincronizados en la nube, accesibles desde cualquier dispositivo.",
+    icon: UserCog,
+    title: "Control de Roles",
+    description: "Sistema de permisos para operadores, supervisores y administradores con acceso personalizado.",
   },
 ];
 
