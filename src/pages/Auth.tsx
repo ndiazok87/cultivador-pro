@@ -1,79 +1,65 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sprout, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import type { Session } from "@supabase/supabase-js";
 import { z } from "zod";
 
-const authSchema = z.object({
+const signInSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }).max(100),
 });
 
+const signUpSchema = z.object({
+  nombre: z.string().trim().min(2, { message: "El nombre debe tener al menos 2 caracteres" }).max(100),
+  email: z.string().trim().email({ message: "Email inválido" }).max(255),
+  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }).max(100),
+  rol: z.enum(['admin', 'gestor', 'trabajador']),
+});
+
 const Auth = () => {
   const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
+  const { user, signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  
+  const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [signInError, setSignInError] = useState("");
+  
+  const [signUpData, setSignUpData] = useState({
+    nombre: "",
+    email: "",
+    password: "",
+    rol: "trabajador" as 'admin' | 'gestor' | 'trabajador'
+  });
+  const [signUpError, setSignUpError] = useState("");
 
   useEffect(() => {
-    // Check for existing session first
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        navigate("/");
-      }
-    });
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        if (session) {
-          navigate("/");
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setSignInError("");
     setLoading(true);
 
     try {
-      const validated = authSchema.parse({ email, password });
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email: validated.email,
-        password: validated.password,
-      });
-
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          setError("Email o contraseña incorrectos");
-        } else {
-          setError(error.message);
-        }
-      } else {
-        toast.success("¡Bienvenido!");
-      }
+      const validated = signInSchema.parse(signInData);
+      await signIn(validated.email, validated.password);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setSignInError(err.errors[0].message);
+      } else if (err instanceof Error) {
+        setSignInError(err.message);
       } else {
-        setError("Error al iniciar sesión");
+        setSignInError("Error al iniciar sesión");
       }
     } finally {
       setLoading(false);
@@ -82,35 +68,19 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setSignUpError("");
     setLoading(true);
 
     try {
-      const validated = authSchema.parse({ email, password });
-      const redirectUrl = `${window.location.origin}/`;
-
-      const { error } = await supabase.auth.signUp({
-        email: validated.email,
-        password: validated.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
-
-      if (error) {
-        if (error.message.includes("User already registered")) {
-          setError("Este email ya está registrado");
-        } else {
-          setError(error.message);
-        }
-      } else {
-        toast.success("¡Cuenta creada exitosamente!");
-      }
+      const validated = signUpSchema.parse(signUpData);
+      await signUp(validated.email, validated.password, validated.nombre, validated.rol);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setSignUpError(err.errors[0].message);
+      } else if (err instanceof Error) {
+        setSignUpError(err.message);
       } else {
-        setError("Error al crear la cuenta");
+        setSignUpError("Error al crear la cuenta");
       }
     } finally {
       setLoading(false);
@@ -121,65 +91,58 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-accent/10 p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20">
-            <Sprout className="h-12 w-12 text-primary" />
+          <div className="flex items-center gap-2">
+            <Sprout className="h-10 w-10 text-primary" />
+            <h1 className="text-3xl font-bold">AgroPrecision</h1>
           </div>
         </div>
 
-        <Card className="border-2 shadow-2xl">
-          <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-3xl font-bold">Agricultura de Precisión</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle>Bienvenido</CardTitle>
             <CardDescription>
-              Accede a tu panel de control
+              Sistema de Gestión Agrícola de Precisión
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Iniciar Sesión</TabsTrigger>
                 <TabsTrigger value="signup">Registrarse</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="email-signin">Email</Label>
+                    <Label htmlFor="signin-email">Email</Label>
                     <Input
-                      id="email-signin"
+                      id="signin-email"
                       type="email"
                       placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={signInData.email}
+                      onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
                       required
                       disabled={loading}
                     />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="password-signin">Contraseña</Label>
+                    <Label htmlFor="signin-password">Contraseña</Label>
                     <Input
-                      id="password-signin"
+                      id="signin-password"
                       type="password"
                       placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={signInData.password}
+                      onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
                       required
                       disabled={loading}
                     />
                   </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    size="lg"
-                    disabled={loading}
-                  >
+                  {signInError && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{signInError}</AlertDescription>
+                    </Alert>
+                  )}
+                  <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -194,44 +157,65 @@ const Auth = () => {
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="email-signup">Email</Label>
+                    <Label htmlFor="signup-nombre">Nombre Completo</Label>
                     <Input
-                      id="email-signup"
+                      id="signup-nombre"
+                      type="text"
+                      placeholder="Juan Pérez"
+                      value={signUpData.nombre}
+                      onChange={(e) => setSignUpData({ ...signUpData, nombre: e.target.value })}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
                       type="email"
                       placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={signUpData.email}
+                      onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
                       required
                       disabled={loading}
                     />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="password-signup">Contraseña</Label>
+                    <Label htmlFor="signup-password">Contraseña</Label>
                     <Input
-                      id="password-signup"
+                      id="signup-password"
                       type="password"
                       placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={signUpData.password}
+                      onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
                       required
                       disabled={loading}
                     />
                   </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    size="lg"
-                    disabled={loading}
-                  >
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-rol">Rol</Label>
+                    <Select
+                      value={signUpData.rol}
+                      onValueChange={(value: any) => setSignUpData({ ...signUpData, rol: value })}
+                      disabled={loading}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="trabajador">Trabajador</SelectItem>
+                        <SelectItem value="gestor">Gestor</SelectItem>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {signUpError && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{signUpError}</AlertDescription>
+                    </Alert>
+                  )}
+                  <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -246,10 +230,6 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Al continuar, aceptas nuestros términos de servicio y política de privacidad
-        </p>
       </div>
     </div>
   );
