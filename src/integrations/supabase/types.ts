@@ -14,16 +14,251 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          created_at: string | null
+          descripcion: string | null
+          estado: Database["public"]["Enums"]["activity_status"] | null
+          fecha_fin: string
+          fecha_inicio: string
+          id: string
+          id_parcela: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["activity_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["activity_status"] | null
+          fecha_fin: string
+          fecha_inicio: string
+          id?: string
+          id_parcela: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["activity_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["activity_status"] | null
+          fecha_fin?: string
+          fecha_inicio?: string
+          id?: string
+          id_parcela?: string
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["activity_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_id_parcela_fkey"
+            columns: ["id_parcela"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_assignments: {
+        Row: {
+          asignado_en: string | null
+          id: string
+          id_actividad: string
+          id_trabajador: string
+        }
+        Insert: {
+          asignado_en?: string | null
+          id?: string
+          id_actividad: string
+          id_trabajador: string
+        }
+        Update: {
+          asignado_en?: string | null
+          id?: string
+          id_actividad?: string
+          id_trabajador?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_assignments_id_actividad_fkey"
+            columns: ["id_actividad"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_assignments_id_trabajador_fkey"
+            columns: ["id_trabajador"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plots: {
+        Row: {
+          created_at: string | null
+          estado: Database["public"]["Enums"]["plot_status"]
+          id: string
+          nombre: string
+          superficie: number
+          tipo_cultivo: Database["public"]["Enums"]["crop_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["plot_status"]
+          id?: string
+          nombre: string
+          superficie: number
+          tipo_cultivo: Database["public"]["Enums"]["crop_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          estado?: Database["public"]["Enums"]["plot_status"]
+          id?: string
+          nombre?: string
+          superficie?: number
+          tipo_cultivo?: Database["public"]["Enums"]["crop_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          correo: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          nombre: string
+          rol: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          correo: string
+          created_at?: string | null
+          id: string
+          is_active?: boolean | null
+          nombre: string
+          rol?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          correo?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          nombre?: string
+          rol?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          cantidad: number
+          created_at: string | null
+          disponible: boolean | null
+          id: string
+          id_parcela: string | null
+          nombre: string
+          tipo: Database["public"]["Enums"]["resource_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          cantidad: number
+          created_at?: string | null
+          disponible?: boolean | null
+          id?: string
+          id_parcela?: string | null
+          nombre: string
+          tipo: Database["public"]["Enums"]["resource_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          cantidad?: number
+          created_at?: string | null
+          disponible?: boolean | null
+          id?: string
+          id_parcela?: string | null
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["resource_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_id_parcela_fkey"
+            columns: ["id_parcela"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workers: {
+        Row: {
+          activo: boolean | null
+          created_at: string | null
+          especialidad: string
+          id: string
+          id_usuario: string
+          updated_at: string | null
+        }
+        Insert: {
+          activo?: boolean | null
+          created_at?: string | null
+          especialidad: string
+          id?: string
+          id_usuario: string
+          updated_at?: string | null
+        }
+        Update: {
+          activo?: boolean | null
+          created_at?: string | null
+          especialidad?: string
+          id?: string
+          id_usuario?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workers_id_usuario_fkey"
+            columns: ["id_usuario"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      activity_status: "pendiente" | "en progreso" | "completada"
+      activity_type:
+        | "siembra"
+        | "cosecha"
+        | "fertilizacion"
+        | "riego"
+        | "fumigacion"
+      crop_type: "maiz" | "trigo" | "soja" | "girasol" | "otro"
+      plot_status: "sembrado" | "cosechado" | "en preparacion"
+      resource_type:
+        | "maquinaria"
+        | "fertilizantes"
+        | "semillas"
+        | "herramientas"
+      user_role: "admin" | "gestor" | "trabajador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +385,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      activity_status: ["pendiente", "en progreso", "completada"],
+      activity_type: [
+        "siembra",
+        "cosecha",
+        "fertilizacion",
+        "riego",
+        "fumigacion",
+      ],
+      crop_type: ["maiz", "trigo", "soja", "girasol", "otro"],
+      plot_status: ["sembrado", "cosechado", "en preparacion"],
+      resource_type: [
+        "maquinaria",
+        "fertilizantes",
+        "semillas",
+        "herramientas",
+      ],
+      user_role: ["admin", "gestor", "trabajador"],
+    },
   },
 } as const
