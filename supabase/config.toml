@@ -1,1 +1,30 @@
 project_id = "pplfpzblqijhkcexeimx"
+
+# Edge Functions configuration
+
+[functions."auth-forgot-password"]
+verify_jwt = false
+
+[functions."auth-reset-password"]
+verify_jwt = false
+
+[functions."users-register"]
+verify_jwt = false
+
+[functions."users-login"]
+verify_jwt = false
+
+[functions."users-profile"]
+verify_jwt = true
+
+[functions.plots]
+verify_jwt = true
+
+[functions.activities]
+verify_jwt = true
+
+[functions.resources]
+verify_jwt = true
+
+[functions.workers]
+verify_jwt = true

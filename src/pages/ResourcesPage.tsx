@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Package, Plus, Pencil, Trash2, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { generateResourcesList } from '@/lib/pdfGenerator';
 
 export default function ResourcesPage() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -106,7 +107,12 @@ export default function ResourcesPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Gestión de Recursos</h2>
-          {canManage && (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => generateResourcesList(resources)}>
+              <FileText className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
+            {canManage && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => resetForm()}>

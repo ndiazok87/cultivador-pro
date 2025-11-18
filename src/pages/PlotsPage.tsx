@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MapPin, Plus, Pencil, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Pencil, Trash2, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { generatePlotsList } from '@/lib/pdfGenerator';
 
 export default function PlotsPage() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -104,14 +105,19 @@ export default function PlotsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Gestión de Parcelas</h2>
-          {canEdit && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nueva Parcela
-                </Button>
-              </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => generatePlotsList(plots)}>
+              <FileText className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
+            {canEdit && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => resetForm()}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nueva Parcela
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>{editingPlot ? 'Editar Parcela' : 'Nueva Parcela'}</DialogTitle>
@@ -183,6 +189,7 @@ export default function PlotsPage() {
               </DialogContent>
             </Dialog>
           )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
