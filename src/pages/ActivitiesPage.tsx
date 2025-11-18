@@ -10,8 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Plus, Pencil, Trash2, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { generateActivitiesList } from '@/lib/pdfGenerator';
 
 export default function ActivitiesPage() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -121,14 +122,19 @@ export default function ActivitiesPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">Gestión de Actividades</h2>
-          {canManage && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => resetForm()}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nueva Actividad
-                </Button>
-              </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => generateActivitiesList(activities)}>
+              <FileText className="mr-2 h-4 w-4" />
+              Exportar PDF
+            </Button>
+            {canManage && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => resetForm()}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nueva Actividad
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>{editingActivity ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
