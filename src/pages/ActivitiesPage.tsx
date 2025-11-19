@@ -314,6 +314,5 @@ export default function ActivitiesPage() {
           </div>
         )}
       </div>
-    </div>
   );
 }
